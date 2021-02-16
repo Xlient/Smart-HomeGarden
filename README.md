@@ -8,7 +8,7 @@
 ![picture of an aloe vera plant with sensor](20201126_142306.jpg)
 soil sensor measuring the moisture of the soil.
 
-![picture of a tomatoe plant](download_20201126_142038.jpg)
+![picture of a tomato plant](download_20201126_142038.jpg)
 
  ## Dependencies
  * [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
