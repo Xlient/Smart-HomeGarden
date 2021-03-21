@@ -1,29 +1,54 @@
-﻿@{ 
-
+﻿@{
     ViewData["Title"] = "Home Page";
 }
+@model  List<IChartData>
 
-<div class="text-center">
+<div class="main-content">
     <h1 class="display-4">Welcome</h1>
-
-   <ejs-chart id="container" title="Soil Chart" width="50%">
-
-
-   </ejs-chart>
-
-    <div class="card-columns">
-
+    <div width="400" height="240">
         <div class="card">
-            <div class="card-header">Current Temperature</div>
             <div class="card-body">
-
+                <canvas id="SoilChart" width="350" height="400"></canvas>
             </div>
         </div>
+    </div>
 
+    <div width="400" height="240">
+        <div class="card">
+            <div class="card-body">
+                <canvas id="LightChart" width="350" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    <div width="400" height="240">
+        <div class="card">
+            <div class="card-body">
+                <canvas id="TemperatureChart" width="350" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    <div width="400" height="240">
+        <div class="card">
+            <div class="card-body">
+                <canvas id="HumidityChart" width="350" height="400"></canvas>
+            </div>
+        </div>
     </div>
 
 
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="~/js/renderChart.js"></script>
+    <script>
+        RenderLineChart((@Html.Raw(Json.Serialize(Model[0]))), "Soil Moisture Chart" , "SoilChart");
+        RenderLineChart((@Html.Raw(Json.Serialize(Model[1]))), "Light Chart", "LightChart");
+        RenderLineChart((@Html.Raw(Json.Serialize(Model[2]))), "Temperature Chart", "TemperatureChart");
+        RenderLineChart((@Html.Raw(Json.Serialize(Model[3]))), "Humidity Chart", "HumidityChart");
 
+
+    </script>
+
+</div>
+           
 
 

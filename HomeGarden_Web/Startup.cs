@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Serialization;
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,6 +24,16 @@ namespace HomeGarden_Web
         
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add framework services.
+            services
+                .AddControllersWithViews()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                // Maintain property names during serialization. See:
+                // https://github.com/aspnet/Announcements/issues/194
+              
+   
+
+
             services.AddControllersWithViews();
             services.AddTransient<BigQueryExportService>();
             services.AddTransient<CloudStorageDownloadService>();
@@ -55,7 +67,7 @@ namespace HomeGarden_Web
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzg0MTIxQDMxMzgyZTM0MmUzMExDQ0dLSHFiQ29rQ3dFK0lTNE5jcG1SeCs4b3BJOTBjNmVVaHdmQUJrU3c9");
+            
 
         }
     }

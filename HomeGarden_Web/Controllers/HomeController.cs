@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using HomeGarden_Web.Models;
@@ -15,9 +16,10 @@ namespace HomeGarden_Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ILogger<CsvParseService> _csvlogger;
-        ILogger<BigQueryExportService> _bqlogger;
-        private IWebHostEnvironment _environment;
-        public HomeController(ILogger<HomeController> logger, ILogger<CsvParseService> csvlogger ,
+        private readonly ILogger<BigQueryExportService> _bqlogger;
+        private readonly IWebHostEnvironment _environment;
+        private CsvParseService _csvParse;
+        public HomeController(ILogger<HomeController> logger, ILogger<CsvParseService> csvlogger,
             ILogger<BigQueryExportService> bqLogger, IWebHostEnvironment environment)
 
         {
@@ -25,26 +27,36 @@ namespace HomeGarden_Web.Controllers
             _csvlogger = csvlogger;
             _bqlogger = bqLogger;
             _environment = environment;
+            _csvParse = new CsvParseService(_environment, _csvlogger);
         }
 
 
-        public IActionResult Index( )
+
+        public IActionResult Index()
         {
-            var exportService = new BigQueryExportService(_bqlogger);
+            _ = new BigQueryExportService(_bqlogger);
+
             var cloudStorage = new CloudStorageDownloadService(_environment);
 
-            // exportService.StartQuery();
-           // cloudStorage.StartDownload();
-            var csvParse = new CsvParseService(_environment, _csvlogger);
-            csvParse.ParseAllCsv();
-
-            ViewBag.dataSource = csvParse.SoilMoistureChart;
+           
+            cloudStorage.StartDownload();
             
-           // create a class to rep senor data
-            
+             _csvParse.ParseAllCsv();
 
-            return View();
+            List<IChartData> models = new List<IChartData>
+            {
+                _csvParse.SoilMoistureChart,
+                _csvParse.LightResistanceChart,
+                _csvParse.TemperatureChart,
+                _csvParse.HumidityChart
+            };
+
+            return View(models);
         }
+
+       
+
+
 
 
         public IActionResult Privacy()

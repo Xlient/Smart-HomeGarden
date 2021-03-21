@@ -14,9 +14,10 @@ namespace HomeGarden_Web.Services
         public BigQueryExportService(ILogger<BigQueryExportService> logger)
         {
             _logger = logger;
+            StartQuery();
         }
 
-        public void StartQuery() 
+        private void StartQuery() 
         {
             foreach (SENSOR_DATA_TYPE type in Enum.GetValues(typeof(SENSOR_DATA_TYPE))) 
             {
@@ -27,7 +28,7 @@ namespace HomeGarden_Web.Services
         {
             try
             {
-                var credential = GoogleCredential.FromFile("C:\\Users\\lakal\\OneDrive\\Documents\\auth-keys.json");
+                var credential = GoogleCredential.FromFile(" path to credentials");
                 BigQueryClient client = BigQueryClient.Create(_projectId, credential);
                 string table_name = "", destination_uri = " ";
 
@@ -54,7 +55,8 @@ namespace HomeGarden_Web.Services
                 }
 
                 string sql = string.Format(@"EXPORT DATA OPTIONS(uri='{0}', format='CSV', overwrite=true)
-                                             AS SELECT * FROM {1} WHERE TIME_DIFF(time_received, CURRENT_TIME('UTC-5'),HOUR) = 3", destination_uri, table_name);
+                                             AS SELECT * FROM {1} WHERE TIME_DIFF(time_received, CURRENT_TIME('UTC-5'),HOUR) < 12
+                                             LIMIT 70", destination_uri, table_name);
 
                 BigQueryParameter[] parameters = null;
 

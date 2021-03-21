@@ -16,17 +16,17 @@ namespace HomeGarden_Web.Services
             WebHostEnvironment = webHostEnvironment;
         }
 
-        public async void StartDownload() 
+        public void StartDownload() 
         {
             foreach (SENSOR_DATA_TYPE type in Enum.GetValues(typeof(SENSOR_DATA_TYPE))) 
             {
                 switch (type)
                 {
                     case SENSOR_DATA_TYPE.SOIL_MOISTURE: 
-                        DownloadTableData(_storageBucket, "sm-data-000000000001.csv");
+                        DownloadTableData(_storageBucket, "sm-data-000000000000.csv");
                         break;
                     case SENSOR_DATA_TYPE.LIGHT:
-                       DownloadTableData(_storageBucket, "lr-data-000000000001.csv");
+                       DownloadTableData(_storageBucket, "lr-data-000000000000.csv");
                         break;
                     case SENSOR_DATA_TYPE.TEMPERATURE:
                         DownloadTableData(_storageBucket, "tmp-data-000000000000.csv");
@@ -38,16 +38,19 @@ namespace HomeGarden_Web.Services
                         break;
                 }
             }
+
+            
         }
 
            private async void DownloadTableData( string bucketName, string objectName)
         { 
-            var credential = GoogleCredential.FromFile("C:\\Users\\lakal\\OneDrive\\Documents\\auth-keys.json");
-            //var credential = GoogleCredential.GetApplicationDefault();
+            var credential = GoogleCredential.FromFile(" enter credentials");
+            
             StorageClient storageClient = await StorageClient.CreateAsync(credential);
             using (var fstream = new FileStream(Path.Combine(WebHostEnvironment.WebRootPath, "data", objectName), FileMode.Create))
             {
                  storageClient.DownloadObject(bucketName, objectName, fstream);
+               
             }
         }
     }

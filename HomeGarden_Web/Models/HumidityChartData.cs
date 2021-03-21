@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace HomeGarden_Web.Models
 {
-    public class HumidityChartData
+    public class HumidityChartData : IChartData
     {
-        public int Humidity;
-        public DateTime datetime;
-        public HumidityChartData(int humidity, DateTime dateTime)
+        public HumidityChartData()
         {
-            Humidity = humidity;
-            datetime = dateTime;
+
         }
-        
+
+        public List<int> Data_Axis_Y { get; set; }
+        public List<DateTime> Data_Axis_X { get; set; }
     }
 }

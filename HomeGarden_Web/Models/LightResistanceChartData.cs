@@ -1,19 +1,14 @@
 ﻿using System;
-
+using System.Collections.Generic;
 namespace HomeGarden_Web.Models
 {
-    public class LightResistanceChartData
+    public class LightResistanceChartData : IChartData
     {
-        public int LightResistance;
-        public DateTime datetime;
-
-
-        public LightResistanceChartData(int light, DateTime dateTime)
+        public LightResistanceChartData()
         {
-            LightResistance = light;
-            datetime = dateTime;
-        }
 
-        
+        }
+        public List<int> Data_Axis_Y { get; set; }
+        public List<DateTime> Data_Axis_X { get; set; }
     }
 }

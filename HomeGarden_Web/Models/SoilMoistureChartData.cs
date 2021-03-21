@@ -1,20 +1,15 @@
 ﻿using System;
-
+using System.Collections.Generic;
 
 namespace HomeGarden_Web.Models
 {
-    public class SoilMoistureChartData
+    public class SoilMoistureChartData : IChartData
     {
-        public int SoilMoisture1;
-        public int SoilMoisture2;
-        public DateTime datetime;
-        public SoilMoistureChartData(int soilmoisture1, int soilmoisture2, DateTime dateTime)
+        public SoilMoistureChartData()
         {
-            SoilMoisture1 = soilmoisture1;
-            SoilMoisture2 = soilmoisture2;
-            datetime = dateTime;
+
         }
-
-
+        public List<int> Data_Axis_Y { get; set; }
+        public List<DateTime> Data_Axis_X{ get; set; }
     }
 }

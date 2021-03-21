@@ -14,12 +14,12 @@ namespace HomeGarden_Web.Services
        
         private readonly ILogger<CsvParseService> _logger;
         public IWebHostEnvironment WebHostEnvironment { get; }
-        public List<SoilMoistureChartData> SoilMoistureChart { get; private set; }
+        public SoilMoistureChartData SoilMoistureChart { get; private set; }
 
-        public List<TemperatureChartData> TemperatureChart { get; private set; }
+        public TemperatureChartData TemperatureChart { get; private set; }
          
-        public List<LightResistanceChartData> LightResistanceChart { get; private set; }
-        public List<HumidityChartData> HumidityChart{ get; private set; }
+        public LightResistanceChartData LightResistanceChart { get; private set; }
+        public HumidityChartData HumidityChart{ get; private set; }
 
         public CsvParseService(IWebHostEnvironment environment, ILogger<CsvParseService> logger)
         {
@@ -36,21 +36,21 @@ namespace HomeGarden_Web.Services
                 switch (type)
                 {
                     case SENSOR_DATA_TYPE.SOIL_MOISTURE:
-                        Parse("sm-data-000000000001.csv", SENSOR_DATA_TYPE.SOIL_MOISTURE);
+                        Parse("sm-data-000000000000.csv", SENSOR_DATA_TYPE.SOIL_MOISTURE);
                         
                       
                         break;
                     case SENSOR_DATA_TYPE.LIGHT:
-                        Parse("lr-data-000000000001.csv", SENSOR_DATA_TYPE.SOIL_MOISTURE);
+                        Parse("lr-data-000000000000.csv", SENSOR_DATA_TYPE.LIGHT);
                         
                         break;
                     case SENSOR_DATA_TYPE.TEMPERATURE:
-                        Parse("tmp-data-000000000000.csv", SENSOR_DATA_TYPE.SOIL_MOISTURE);
+                        Parse("tmp-data-000000000000.csv", SENSOR_DATA_TYPE.TEMPERATURE);
                        
                         
                         break;
                     case SENSOR_DATA_TYPE.HUMIDITY:
-                        Parse("hm-data-000000000001.csv", SENSOR_DATA_TYPE.SOIL_MOISTURE);
+                        Parse("hm-data-000000000000.csv", SENSOR_DATA_TYPE.HUMIDITY);
                       
                         
                         break;
@@ -58,26 +58,23 @@ namespace HomeGarden_Web.Services
                         break;
                 }
 
-               
-               
             }
-
-
 
         }
 
         /// <summary>
-        ///  Parses through the csv file and coverts the data into the appropiate model
+        /// Takes a file name and Sensor data type and parses through the the csv file.
         /// </summary>
         /// <param name="filename"></param>
         /// <param name="type"></param>
-        /// <returns> Model to the  sensor data</returns>
+        ///
         private void Parse(string filename, SENSOR_DATA_TYPE type)
         {
-            List<SoilMoistureChartData> soilMoisturesList = new List<SoilMoistureChartData>();
-            List<TemperatureChartData> temperaturesList = new List<TemperatureChartData>();
-            List<LightResistanceChartData> lightResistancesList = new List<LightResistanceChartData>();
-            List<HumidityChartData> humidityList = new List<HumidityChartData>();
+            List<int> soilMoisturesList = new List<int>();
+            List<int> temperaturesList = new List<int>();
+            List<int> lightResistancesList = new List<int>();
+            List<int> humidityList = new List<int>();
+            List<DateTime> dateTimes = new List<DateTime>();
             try
             {
                 using (TextFieldParser parser = new TextFieldParser(Path.Combine(WebHostEnvironment.WebRootPath, "data", filename)))
@@ -88,55 +85,109 @@ namespace HomeGarden_Web.Services
                     while (!parser.EndOfData)
                     {
                         string[] fields = parser.ReadFields();
-                        string dateString = fields[1] + fields[2];
+                        string dateString = fields[1]+"T" + fields[2] + "Z";
                         DateTime date;
 
                         if (type == SENSOR_DATA_TYPE.SOIL_MOISTURE)
                         {
-                            dateString = fields[2] + fields[3];
-                            DateTime.TryParse(dateString, out date);
-                            soilMoisturesList.Add(new SoilMoistureChartData(int.Parse(fields[0]), int.Parse(fields[1]), date));
+                            dateString = fields[2] + "T" + fields[3] + "Z";
+                            date = DateTime.Parse(dateString).ToUniversalTime();
+                            soilMoisturesList.Add(int.Parse(fields[0]));
+                            dateTimes.Add(date);
 
                         }
 
                         else if (type == SENSOR_DATA_TYPE.LIGHT)
                         {
-                            DateTime.TryParse(dateString, out date);
-                            lightResistancesList.Add(new LightResistanceChartData(int.Parse(fields[0]), date));
+                            date = DateTime.Parse(dateString).ToUniversalTime();
+                            lightResistancesList.Add(int.Parse(fields[0]));
+                            dateTimes.Add(date);
                         }
                         else if (type == SENSOR_DATA_TYPE.TEMPERATURE)
                         {
-                            DateTime.TryParse(dateString, out date);
-                            temperaturesList.Add(new TemperatureChartData(int.Parse(fields[0]), date));
+                            date = DateTime.Parse(dateString).ToUniversalTime();
+                            temperaturesList.Add(int.Parse(fields[0]));
+                            dateTimes.Add(date);
                         }
 
                         else
                         {
-                            DateTime.TryParse(dateString, out date);
-                            humidityList.Add(new HumidityChartData(int.Parse(fields[0]), date));
+                            date = DateTime.Parse(dateString).ToUniversalTime();
+                            humidityList.Add(int.Parse(fields[0]));
+                            dateTimes.Add(date);
                         }
 
                     }
+
+
                 }
             }
             catch (Exception ex)
             {
 
-                _logger.LogError(@" \n --------------\n
-                                        Somthing went wrong in {0}. Message: {1}  Stack trace: {3}   Inner Exception {4}", ex.Source, ex.Message, ex.StackTrace, ex.StackTrace);
+                _logger.LogError($"Somthing went wrong in {ex.Source}. Message: {ex.Message}");
+                _logger.LogError($"Inner Exception : {ex.InnerException}");
+                _logger.LogError(ex.StackTrace);
             }
 
-            SoilMoistureChart = soilMoisturesList;
-            LightResistanceChart = lightResistancesList;
-            TemperatureChart = temperaturesList;
-            HumidityChart = humidityList;
-
+            switch (type)
+            {
+                case SENSOR_DATA_TYPE.SOIL_MOISTURE:
+                    UpdateModels(soilMoisturesList, dateTimes, type);
+                    break;
+                case SENSOR_DATA_TYPE.LIGHT:
+                    UpdateModels(lightResistancesList, dateTimes, type);
+                    break;
+                case SENSOR_DATA_TYPE.TEMPERATURE:
+                    UpdateModels(temperaturesList, dateTimes, type);
+                    break;
+                case SENSOR_DATA_TYPE.HUMIDITY:
+                    UpdateModels(humidityList, dateTimes, type);
+                    break;
+                default:
+                    break;
+            }
 
 
         }
 
-
-
+      
+        private void UpdateModels(List<int> dataList, List<DateTime> dates, SENSOR_DATA_TYPE sensorType) 
+        {
+            switch (sensorType)
+            {
+                case SENSOR_DATA_TYPE.SOIL_MOISTURE:
+                    SoilMoistureChart = new SoilMoistureChartData {
+                        Data_Axis_Y = dataList,
+                          Data_Axis_X = dates,
+                    };
+                        
+                    break;
+                case SENSOR_DATA_TYPE.LIGHT:
+                    LightResistanceChart = new LightResistanceChartData
+                    {
+                        Data_Axis_Y = dataList,
+                        Data_Axis_X = dates,
+                    };
+                    break;
+                case SENSOR_DATA_TYPE.TEMPERATURE:
+                    TemperatureChart = new TemperatureChartData
+                    {
+                        Data_Axis_Y = dataList,
+                        Data_Axis_X = dates,
+                    };
+                    break;
+                case SENSOR_DATA_TYPE.HUMIDITY:
+                    HumidityChart = new HumidityChartData
+                    {
+                        Data_Axis_Y = dataList,
+                        Data_Axis_X = dates,
+                    };
+                    break;
+                default:
+                    break;
+            }
+        }
 
 
     }
